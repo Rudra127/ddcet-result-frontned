@@ -1,5 +1,5 @@
 import * as React from "react";
-import { alpha, useTheme } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Paper from "@mui/material/Paper";
@@ -13,11 +13,12 @@ import TableRow from "@mui/material/TableRow";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import TextField from "@mui/material/TextField";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import { visuallyHidden } from "@mui/utils";
 import InputAdornment from "@mui/material/InputAdornment";
 import { IconSearch } from "@tabler/icons-react";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 import axios from "axios";
+import { visuallyHidden } from "@mui/utils";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) return -1;
@@ -88,7 +89,7 @@ function EnhancedTableHead(props) {
             >
               {headCell.label}
               {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
+                <Box component="span" sx={{ ...visuallyHidden }}>
                   {order === "desc" ? "sorted descending" : "sorted ascending"}
                 </Box>
               ) : null}
@@ -101,48 +102,53 @@ function EnhancedTableHead(props) {
 }
 
 const EnhancedTableToolbar = (props) => {
-  const { numSelected, handleSearch, search } = props;
+  const { handleSearch, search, searchBy, handleSearchByChange } = props;
 
   return (
     <Toolbar
       sx={{
         pl: { sm: 2 },
         pr: { xs: 1, sm: 1 },
-        ...(numSelected > 0 && {
-          bgcolor: (theme) =>
-            alpha(
-              theme.palette.primary.main,
-              theme.palette.action.activatedOpacity
-            ),
-        }),
       }}
     >
-      {numSelected > 0 ? (
-        <Typography
-          sx={{ flex: "1 1 100%" }}
-          color="inherit"
-          variant="subtitle2"
-          component="div"
+      <Box
+        sx={{
+          flex: "1 1 100%",
+          display: "flex",
+          justifyContent: "center",
+          gap: 2,
+        }}
+      >
+        <Select
+          value={searchBy}
+          onChange={handleSearchByChange}
+          size="small"
+          displayEmpty
         >
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Box sx={{ flex: "1 1 100%" }}>
-          <TextField
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <IconSearch size="1.1rem" />
-                </InputAdornment>
-              ),
-            }}
-            placeholder="Search Students"
-            size="small"
-            onChange={handleSearch}
-            value={search}
-          />
-        </Box>
-      )}
+          <MenuItem value="" disabled>
+            Search By
+          </MenuItem>
+          <MenuItem value="candidateName">Candidate Name</MenuItem>
+          <MenuItem value="applicationNo">Application No</MenuItem>
+          <MenuItem value="rank">Rank</MenuItem>
+          <MenuItem value="marksSecured">Marks Secured</MenuItem>
+          <MenuItem value="seatNo">Seat No</MenuItem>
+          <MenuItem value="programme">Program</MenuItem>
+        </Select>
+        <TextField
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <IconSearch size="1.1rem" />
+              </InputAdornment>
+            ),
+          }}
+          placeholder="Search Students"
+          size="small"
+          onChange={handleSearch}
+          value={search}
+        />
+      </Box>
     </Toolbar>
   );
 };
@@ -150,7 +156,6 @@ const EnhancedTableToolbar = (props) => {
 const D2dStudentList = () => {
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("rank");
-  const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(100);
@@ -158,6 +163,7 @@ const D2dStudentList = () => {
   const [rows, setRows] = React.useState([]);
   const [originalRows, setOriginalRows] = React.useState([]);
   const [search, setSearch] = React.useState("");
+  const [searchBy, setSearchBy] = React.useState("candidateName");
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -183,51 +189,20 @@ const D2dStudentList = () => {
       setRows(originalRows);
     } else {
       filteredRows = originalRows.filter((row) => {
-        return (
-          row.applicationNo?.toLowerCase().includes(searchValue) ||
-          row.seatNo?.toString().toLowerCase().includes(searchValue) ||
-          row.candidateName?.toLowerCase().includes(searchValue) ||
-          row.marksSecured?.toString().toLowerCase().includes(searchValue) ||
-          row.rank?.toString().toLowerCase().includes(searchValue)
-        );
+        return row[searchBy]?.toString().toLowerCase().includes(searchValue);
       });
       setRows(filteredRows);
     }
+  };
+
+  const handleSearchByChange = (event) => {
+    setSearchBy(event.target.value);
   };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-  };
-
-  const handleSelectAllClick = (event) => {
-    if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.title);
-      setSelected(newSelecteds);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-
-    setSelected(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -243,8 +218,6 @@ const D2dStudentList = () => {
     setDense(event.target.checked);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
-
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -255,9 +228,10 @@ const D2dStudentList = () => {
     <Box>
       <Box>
         <EnhancedTableToolbar
-          numSelected={selected.length}
           search={search}
           handleSearch={(event) => handleSearch(event)}
+          searchBy={searchBy}
+          handleSearchByChange={handleSearchByChange}
         />
         <Paper
           variant="outlined"
@@ -270,10 +244,8 @@ const D2dStudentList = () => {
               size={dense ? "small" : "medium"}
             >
               <EnhancedTableHead
-                numSelected={selected.length}
                 order={order}
                 orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
                 onRequestSort={handleRequestSort}
                 rowCount={rows.length}
               />
@@ -288,20 +260,14 @@ const D2dStudentList = () => {
                   stableSort(rows, getComparator(order, orderBy))
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row, index) => {
-                      const isItemSelected = isSelected(row.applicationNo);
                       const labelId = `enhanced-table-checkbox-${index}`;
 
                       return (
                         <TableRow
                           hover
-                          onClick={(event) =>
-                            handleClick(event, row.applicationNo)
-                          }
                           role="checkbox"
-                          aria-checked={isItemSelected}
                           tabIndex={-1}
                           key={row.applicationNo}
-                          selected={isItemSelected}
                         >
                           <TableCell component="th" id={labelId} scope="row">
                             {row.applicationNo}

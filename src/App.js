@@ -4,10 +4,10 @@ import D2dStudentList from "./components/D2dStudentList";
 import axios from "axios";
 import { Box } from "@mui/material";
 
-
-
 function App() {
   axios.defaults.baseURL = "https://ddcet-webscraping-backend.onrender.com";
+  // axios.defaults.baseURL = "http://localhost:6969";
+
   return (
     <Box className="">
       <D2dStudentList />
