@@ -63,6 +63,13 @@ const headCells = [
     label: "Marks Secured",
   },
   { id: "seatNo", numeric: false, disablePadding: false, label: "Seat No" },
+  { id: "userId", numeric: false, disablePadding: false, label: "User ID" },
+  {
+    id: "fathersName",
+    numeric: false,
+    disablePadding: false,
+    label: "Father's Name",
+  },
   { id: "programme", numeric: false, disablePadding: false, label: "Program" },
 ];
 
@@ -133,6 +140,8 @@ const EnhancedTableToolbar = (props) => {
           <MenuItem value="rank">Rank</MenuItem>
           <MenuItem value="marksSecured">Marks Secured</MenuItem>
           <MenuItem value="seatNo">Seat No</MenuItem>
+          <MenuItem value="userId">User ID</MenuItem>
+          <MenuItem value="fathersName">Father's Name</MenuItem>
           <MenuItem value="programme">Program</MenuItem>
         </Select>
         <TextField
@@ -252,7 +261,7 @@ const D2dStudentList = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={8} align="center">
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
@@ -276,6 +285,8 @@ const D2dStudentList = () => {
                           <TableCell>{row.rank}</TableCell>
                           <TableCell>{row.marksSecured}</TableCell>
                           <TableCell>{row.seatNo}</TableCell>
+                          <TableCell>{row.userId}</TableCell>
+                          <TableCell>{row.fathersName}</TableCell>
                           <TableCell>{row.programme}</TableCell>
                         </TableRow>
                       );
@@ -283,7 +294,7 @@ const D2dStudentList = () => {
                 )}
                 {emptyRows > 0 && (
                   <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                    <TableCell colSpan={6} />
+                    <TableCell colSpan={8} />
                   </TableRow>
                 )}
               </TableBody>
