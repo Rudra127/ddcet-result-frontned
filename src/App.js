@@ -5,7 +5,7 @@ import axios from "axios";
 import { Box } from "@mui/material";
 
 function App() {
-  axios.defaults.baseURL = "http://13.201.37.30";
+  axios.defaults.baseURL = "https://13.201.37.30";
   // axios.defaults.baseURL = "http://localhost:6969";
 
   return (
