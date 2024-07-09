@@ -5,7 +5,7 @@ import axios from "axios";
 import { Box } from "@mui/material";
 
 function App() {
-  axios.defaults.baseURL = "https://ddcet-result-backend.glitchastra.com";
+  axios.defaults.baseURL = "https://ddcet-result-web-scraping-backend.onrender.com";
   // axios.defaults.baseURL = "http://localhost:6969";
 
   return (
